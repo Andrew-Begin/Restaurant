@@ -13,7 +13,7 @@ namespace Acceso_Datos
         private readonly string connectionString;
         public Conexion_Oracle()
         {
-            connectionString = "Data Source=(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=localhost)(PORT=1521))(CONNECT_DATA=(SERVICE_NAME=XE)));User Id=nicolas;Password=nicolas;";
+            connectionString = "Data Source=(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=DESKTOP-E1DPVHU)(PORT=1521))(CONNECT_DATA=(SERVICE_NAME=xe)));User Id=windows;Password=windows;";
         }
         protected OracleConnection GetConnection()
         {
