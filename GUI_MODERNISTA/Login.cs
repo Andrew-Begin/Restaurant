@@ -1,18 +1,23 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Mail;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Xml;
 using MaterialSkin;
 using MaterialSkin.Controls;
 using Modelo_Negocio;
 using Oracle.ManagedDataAccess.Client;
+
+
 
 namespace Diseno
 {
@@ -48,6 +53,105 @@ namespace Diseno
         {
             TxtContrasena.Text = "";
         }
+
+
+
+
+ public HttpWebRequest CreateSOAPWebRequest(string url)
+        {
+            //Making Web Request    
+            HttpWebRequest Req = (HttpWebRequest)WebRequest.Create(url);
+            //SOAPAction    
+
+            //Content_type    
+            Req.ContentType = "text/xml;charset=\"utf-8\"";
+            Req.Accept = "text/xml";
+            //HTTP method    
+            Req.Method = "POST";
+            //return HttpWebRequest    
+            return Req;
+        }
+
+
+
+
+
+        public String InvokeService(String username, String password)
+        {
+            //Calling CreateSOAPWebRequest method    
+            HttpWebRequest request = CreateSOAPWebRequest("http://desktop-e1dpvhu:9999/Restaurante-login/Restaurante");
+
+            XmlDocument SOAPReqBody = new XmlDocument();
+            //SOAP Body Request    
+
+            string xml = "<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:wsp=\"http://Webservice/\">" +
+                "<soapenv:Header/><soapenv:Body><wsp:login><username>camilo</username><password>restaurante</password></wsp:login></soapenv:Body></soapenv:Envelope>";
+
+
+            String contrasenaCifrada = GetMD5Hash(password);
+
+            MessageBox.Show(contrasenaCifrada);
+
+
+            MessageBox.Show(xml);
+            xml = xml.Replace("[username]", username.Replace("[password]", contrasenaCifrada)); ;
+
+
+            SOAPReqBody.LoadXml(xml);
+            using (Stream stream = request.GetRequestStream())
+            {
+                SOAPReqBody.Save(stream);
+            }
+            //Geting response from request    
+            using (WebResponse Serviceres = request.GetResponse())
+            {
+                using (StreamReader rd = new StreamReader(Serviceres.GetResponseStream()))
+                {
+                    //reading stream    
+                    var ServiceResult = rd.ReadToEnd();
+                    return ServiceResult.ToString();
+                    //writting stream result on console 
+
+
+
+
+                    //MessageBox.Show(ServiceResult);
+                }
+
+
+
+
+            }
+
+
+
+        }
+
+
+
+  public static String GetMD5Hash(String input)
+        {
+            MD5CryptoServiceProvider x = new MD5CryptoServiceProvider();
+            byte[] bs = System.Text.Encoding.UTF8.GetBytes(input);
+            bs = x.ComputeHash(bs);
+            System.Text.StringBuilder s = new System.Text.StringBuilder();
+            foreach (byte b in bs)
+            {
+                s.Append(b.ToString("x2").ToLower());
+            }
+            String hash = s.ToString();
+            return hash;
+        }
+
+
+    }
+
+
+
+}
+
+
+
 
         private void BtnAcceder_Click(object sender, EventArgs e)
         {
